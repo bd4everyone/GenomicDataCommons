@@ -38,7 +38,7 @@ head(available_values('genes','symbol'))
 
 
 ```{r}
-tp53 = genes() |> 
+tp53 <- genes() |> 
   GenomicDataCommons::filter(symbol=='TP53') |> 
   results(size=10000) |> 
   as_tibble()
@@ -67,7 +67,7 @@ ssms() |>
 
 ```{r warning=FALSE,message=FALSE}
 library(VariantAnnotation)
-vars = ssms() |> 
+vars <- ssms() |> 
     GenomicDataCommons::filter(
       consequence.transcript.gene.symbol %in% c('TP53')) |> 
     GenomicDataCommons::results_all() |>
@@ -75,7 +75,7 @@ vars = ssms() |>
 ```
 
 ```{r}
-vr = VRanges(seqnames = vars$chromosome,
+vr <- VRanges(seqnames = vars$chromosome,
              ranges = IRanges(start=vars$start_position, width=1),
              ref = vars$reference_allele,
              alt = vars$tumor_allele)
@@ -89,7 +89,7 @@ ssm_occurrences() |>
 ```
 
 ```{r}
-var_samples = ssm_occurrences() |> 
+var_samples <- ssm_occurrences() |> 
     GenomicDataCommons::filter(
       ssm.consequence.transcript.gene.symbol %in% c('TP53')) |> 
     GenomicDataCommons::expand(c('case', 'ssm', 'case.project')) |>
@@ -119,7 +119,7 @@ fnames <- files() |>
 
 ```{r cache=TRUE}
 library(maftools)
-melanoma = read.maf(maf = fnames)
+melanoma <- read.maf(maf = fnames)
 ```
 
 ```{r}
