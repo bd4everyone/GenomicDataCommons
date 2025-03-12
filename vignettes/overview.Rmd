@@ -118,6 +118,12 @@ stopifnot(GenomicDataCommons::status()$status=="OK")
 
 
 ## Find data
+Please use a fresh R session to minimise package conflicts arising from identical function names.
+For example the functions filter(), results() are available with R packages dplyr, GenomicDataCommons . Instead consider using the R package conflicted.
+Example usage
+conflicts_prefer(dplyr::filter())
+conflicts_prefer(GenomicDataCommons::filter)
+conflicts_prefer(stats :: filter)
 
 The following code builds a `manifest` that can be used to guide the
 download of raw data. Here, filtering finds gene expression files
@@ -164,8 +170,8 @@ the `gdc_clinical()` function will return a list of four `tibble`s.
 - main
 
 ```{r gdc_clinical}
-case_ids = cases() |> results(size=10) |> ids()
-clindat = gdc_clinical(case_ids)
+case_ids <- cases() |> results(size=10) |> ids()
+clindat <- gdc_clinical(case_ids)
 names(clindat)
 ```
 
@@ -183,9 +189,9 @@ be all that is needed, but the API and `r Biocpkg("GenomicDataCommons")` package
 make much flexibility if fine-tuning is required. 
 
 ```{r metadataQS}
-expands = c("diagnoses","annotations",
+expands <- c("diagnoses","annotations",
              "demographic","exposures")
-clinResults = cases() |>
+clinResults <- cases() |>
     GenomicDataCommons::select(NULL) |>
     GenomicDataCommons::expand(expands) |>
     results(size=50)
@@ -287,7 +293,7 @@ functions that each create `GDCQuery` objects (actually, specific subclasses of
 - `annotations()`
 
 ```{r projectquery}
-pquery = projects()
+pquery <- projects()
 ```
 
 The `pquery` object is now an object of (S3) class, `GDCQuery` (and
@@ -326,16 +332,16 @@ Note that we have not set any filters, so a `count()` here will represent all
 the project records publicly available at the GDC in the "default" archive"
 
 ```{r pquerycount}
-pcount = count(pquery)
+pcount <- count(pquery)
 # or
-pcount = pquery |> count()
+pcount <- pquery |> count()
 pcount
 ```
 
 The `results()` method will fetch actual results.
 
 ```{r pqueryresults}
-presults = pquery |> results()
+presults <- pquery |> results()
 ```
 These results are
 returned from the GDC in [JSON](http://www.json.org/) format and
@@ -356,7 +362,7 @@ size is probably warranted before calling `results_all()`
 
 ```{r presultsall}
 length(ids(presults))
-presults = pquery |> results_all()
+presults <- pquery |> results_all()
 length(ids(presults))
 # includes all records
 length(ids(presults)) == count(pquery)
@@ -401,11 +407,11 @@ the dplyr `select()` verb that limits from already-present fields. We
 
 ```{r selectexample}
 # Default fields here
-qcases = cases()
+qcases <- cases()
 qcases$fields
 # set up query to use ALL available fields
 # Note that checking of fields is done by select()
-qcases = cases() |> GenomicDataCommons::select(available_fields('cases'))
+qcases <- cases() |> GenomicDataCommons::select(available_fields('cases'))
 head(qcases$fields)
 ```
 
@@ -428,7 +434,7 @@ tibbles).
 
 ```{r aggexample}
 # total number of files of a specific type
-res = files() |> facet(c('type','data_type')) |> aggregations()
+res <- files() |> facet(c('type','data_type')) |> aggregations()
 res$type
 ```
 
@@ -454,7 +460,7 @@ For the user, these details will not be too important except to note that a
 filter expression must begin with a "~".
 
 ```{r allfilesunfiltered}
-qfiles = files()
+qfiles <- files()
 qfiles |> count() # all files
 ```
 To limit the file type, we can refer back to the
@@ -463,7 +469,7 @@ the file field "type". For example, to filter file results to only
 "gene_expression" files, we simply specify a filter.
 
 ```{r onlyGeneExpression}
-qfiles = files() |> filter( type == 'gene_expression')
+qfiles <- files() |> filter( type == 'gene_expression')
 # here is what the filter looks like after translation
 str(get_filter(qfiles))
 ```
@@ -495,7 +501,7 @@ note that `TCGA-OV` is the correct project_id, not `TCGA-OVCA`. Note that
 filter and does not build on any previous filters*.
 
 ```{r filtfinal}
-qfiles = files() |>
+qfiles <- files() |>
     filter( cases.project.project_id == 'TCGA-OV' & type == 'gene_expression')
 str(get_filter(qfiles))
 qfiles |> count()
@@ -507,7 +513,7 @@ accomplish the same effect as multiple `&` conditionals. The `count()`
 below is equivalent to the `&` filtering done above.
 
 ```{r filtChain}
-qfiles2 = files() |>
+qfiles2 <- files() |>
     filter( cases.project.project_id == 'TCGA-OV') |> 
     filter( type == 'gene_expression') 
 qfiles2 |> count()
@@ -520,7 +526,7 @@ Generating a manifest for bulk downloads is as
 simple as asking for the manifest from the current query.
 
 ```{r filtAndManifest}
-manifest_df = qfiles |> manifest()
+manifest_df <- qfiles |> manifest()
 head(manifest_df)
 ```
 
@@ -531,11 +537,11 @@ that the field "analysis.workflow_type" has the appropriate filter criteria.
 
 
 ```{r filterForSTARCounts}
-qfiles = files() |> filter( ~ cases.project.project_id == 'TCGA-OV' &
+qfiles <- files() |> filter( ~ cases.project.project_id == 'TCGA-OV' &
                             type == 'gene_expression' &
                             access == "open" &
                             analysis.workflow_type == 'STAR - Counts')
-manifest_df = qfiles |> manifest()
+manifest_df <- qfiles |> manifest()
 nrow(manifest_df)
 ```
 
@@ -577,7 +583,7 @@ be stored in one of three ways (resolved in this order):
 As a concrete example:
 
 ```{r authenNoRun, eval=FALSE}
-token = gdc_token()
+token <- gdc_token()
 transfer(...,token=token)
 # or
 transfer(...,token=get_token())
@@ -594,7 +600,7 @@ ids. A simple way of producing such a vector is to produce a
 contain file ids.
 
 ```{r singlefileDL}
-fnames = gdcdata(manifest_df$id[1:2],progress=FALSE)
+fnames <- gdcdata(manifest_df$id[1:2],progress=FALSE)
 
 ```
 
@@ -614,7 +620,7 @@ in parallel.
 ```{r bulkDL, eval=FALSE}
 # Requires gcd_client command-line utility to be isntalled
 # separately. 
-fnames = gdcdata(manifest_df$id[3:10], access_method = 'client')
+fnames <- gdcdata(manifest_df$id[3:10], access_method = 'client')
 ```
 
 
@@ -627,7 +633,7 @@ fnames = gdcdata(manifest_df$id[3:10], access_method = 'client')
 ### How many cases are there per project_id?
 
 ```{r casesPerProject}
-res = cases() |> facet("project.project_id") |> aggregations()
+res <- cases() |> facet("project.project_id") |> aggregations()
 head(res)
 library(ggplot2)
 ggplot(res$project.project_id,aes(x = key, y = doc_count)) +
@@ -653,7 +659,7 @@ cases() |> filter(~ project.program.name=='TCGA') |> count()
 # The need to do the "&" here is a requirement of the
 # current version of the GDC API. I have filed a feature
 # request to remove this requirement.
-resp = cases() |> filter(~ project.project_id=='TCGA-BRCA' &
+resp <- cases() |> filter(~ project.project_id=='TCGA-BRCA' &
                               project.project_id=='TCGA-BRCA' ) |>
     facet('samples.sample_type') |> aggregations()
 resp$samples.sample_type
@@ -665,12 +671,12 @@ resp$samples.sample_type
 # The need to do the "&" here is a requirement of the
 # current version of the GDC API. I have filed a feature
 # request to remove this requirement.
-resp = cases() |> filter(~ project.project_id=='TCGA-BRCA' &
+resp <- cases() |> filter(~ project.project_id=='TCGA-BRCA' &
                               samples.sample_type=='Solid Tissue Normal') |>
     GenomicDataCommons::select(c(default_fields(cases()),'samples.sample_type')) |>
     response_all()
 count(resp)
-res = resp |> results()
+res <- resp |> results()
 str(res[1],list.len=6)
 head(ids(resp))
 ```
@@ -721,7 +727,7 @@ cases() |>
 ### How many of each type of file are available?
 
 ```{r filesVCFCount}
-res = files() |> facet('type') |> aggregations()
+res <- files() |> facet('type') |> aggregations()
 res$type
 ggplot(res$type,aes(x = key,y = doc_count)) + geom_bar(stat='identity') +
     theme(axis.text.x = element_text(angle = 45, hjust = 1))
@@ -730,13 +736,13 @@ ggplot(res$type,aes(x = key,y = doc_count)) + geom_bar(stat='identity') +
 ### Find gene-level RNA-seq quantification files for GBM
 
 ```{r filesRNAseqGeneGBM}
-q = files() |>
+q <- files() |>
     GenomicDataCommons::select(available_fields('files')) |>
     filter(~ cases.project.project_id=='TCGA-GBM' &
                data_type=='Gene Expression Quantification')
 q |> facet('analysis.workflow_type') |> aggregations()
 # so need to add another filter
-file_ids = q |> filter(~ cases.project.project_id=='TCGA-GBM' &
+file_ids <- q |> filter(~ cases.project.project_id=='TCGA-GBM' &
                             data_type=='Gene Expression Quantification' &
                             analysis.workflow_type == 'STAR - Counts') |>
     GenomicDataCommons::select('file_id') |>
@@ -752,20 +758,20 @@ file_ids = q |> filter(~ cases.project.project_id=='TCGA-GBM' &
 and for vignette building**.
 
 ```{r filesRNAseqGeneGBMforBAM}
-q = files() |>
+q <- files() |>
     GenomicDataCommons::select(available_fields('files')) |>
     filter(~ cases.project.project_id == 'TCGA-GBM' &
                data_type == 'Aligned Reads' &
                experimental_strategy == 'RNA-Seq' &
                data_format == 'BAM')
-file_ids = q |> response_all() |> ids()
+file_ids <- q |> response_all() |> ids()
 ```
 
 
 ```{r slicing10, eval=FALSE}
-bamfile = slicing(file_ids[1],regions="chr12:6534405-6538375",token=gdc_token())
+bamfile <- slicing(file_ids[1],regions="chr12:6534405-6538375",token=gdc_token())
 library(GenomicAlignments)
-aligns = readGAlignments(bamfile)
+aligns <- readGAlignments(bamfile)
 ```
 
 # Troubleshooting
