@@ -29,7 +29,7 @@ changes to lazy evaluation best practices. There is now no need to
 include the `~` in the filter expression. So:
 
 ```{r}
-q = files() |>
+q <- files() |>
   GenomicDataCommons::filter(
     cases.project.project_id == 'TCGA-COAD' &
       data_type == 'Aligned Reads' &
@@ -51,7 +51,7 @@ manifest(q)
 Your question about race and ethnicity is a good one. 
 
 ```{r}
-all_fields = available_fields(files())
+all_fields <- available_fields(files())
 ```
 
 And we can grep for `race` or `ethnic` to get potential matching fields
@@ -72,7 +72,7 @@ available_values('files',"cases.demographic.race")
 We can complete our filter expression now to limit to `white` race only.
 
 ```{r}
-q_white_only = q |>
+q_white_only <- q |>
   GenomicDataCommons::filter(cases.demographic.race=='white')
 count(q_white_only)
 manifest(q_white_only)
